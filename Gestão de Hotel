@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Hotel Management System</title>
+<link
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+  rel="stylesheet"
+/>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    margin: 0;
+    padding: 20px;
+  }
+  h1, h2 {
+    text-align: center;
+    text-shadow: 0 0 6px #0008;
+  }
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: #0d0d33cc;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 0 20px #0009;
+  }
+  form {
+    margin-bottom: 25px;
+    background: #1e1e5a;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: inset 0 0 8px #3b3bcf;
+  }
+  form label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+  }
+  form input, form select {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 12px;
+    border-radius: 5px;
+    border: none;
+    font-size: 1em;
+    outline: none;
+  }
+  form input:focus, form select:focus {
+    box-shadow: 0 0 8px #ffdd57;
+  }
+  button {
+    background: #ffdd57;
+    border: none;
+    color: #222;
+    font-weight: bold;
+    padding: 10px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 1em;
+  }
+  button:hover {
+    background: #f5c22b;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+  }
+  li {
+    background: #342d7e;
+    margin-bottom: 10px;
+    padding: 12px 15px;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 0 12px #2e2aca;
+  }
+  li span {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .remove-btn {
+    background: #e63946;
+    color: white;
+    border-radius: 6px;
+    font-size: 0.9em;
+    padding: 6px 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .remove-btn:hover {
+    background: #b31b28;
+  }
+  .status {
+    padding: 3px 8px;
+    border-radius: 15px;
+    font-weight: bold;
+    font-size: 0.9em;
+    color: #fff;
+  }
+  .status.Disponível {
+    background-color: #2ecc71;
+    box-shadow: 0 0 8px #27ae60;
+  }
+  .status.Ocupado {
+    background-color: #e74c3c;
+    box-shadow: 0 0 8px #c0392b;
+  }
+  #notificacao {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #f5c22b;
+    color: #222;
+    padding: 12px 18px;
+    border-radius: 10px;
+    font-weight: bold;
+    box-shadow: 0 0 12px #ffdd57cc;
+    display: none;
+    z-index: 1000;
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1><i class="fas fa-hotel"></i> Sistema de Gestão de Hotel</h1>
+
+  <!-- Formulário Hóspede -->
+  <section>
+    <h2><i class="fas fa-user"></i> Cadastro de Hóspedes</h2>
+    <form id="formHospede">
+      <label for="nomeHospede">Nome Completo</label>
+      <input type="text" id="nomeHospede" required minlength="3" placeholder="Ex: João Silva" />
+
+      <label for="telefoneHospede">Telefone (Ex: +5511999998888)</label>
+      <input type="tel" id="telefoneHospede" required placeholder="+5511999998888" />
+
+      <label for="emailHospede">E-mail</label>
+      <input type="email" id="emailHospede" required placeholder="exemplo@email.com" />
+
+      <label for="docHospede">Documento (RG ou CPF)</label>
+      <input type="text" id="docHospede" required minlength="5" placeholder="Número do documento" />
+
+      <button type="submit"><i class="fas fa-plus-circle"></i> Adicionar Hóspede</button>
+    </form>
+
+    <input type="search" id="buscarHospede" placeholder="Buscar hóspede..." style="width: 100%; padding: 8px; margin-bottom: 12px; border-radius: 6px; border: none; font-size: 1em;" />
+    <ul id="listaHospedes"></ul>
+  </section>
+
+  <hr style="margin: 40px 0; border: 1px solid #555;" />
+
+  <!-- Formulário Quarto -->
+  <section>
+    <h2><i class="fas fa-door-closed"></i> Cadastro de Quartos</h2>
+    <form id="formQuarto">
+      <label for="numeroQuarto">Número do Quarto</label>
+      <input type="number" id="numeroQuarto" required min="1" placeholder="Ex: 101" />
+
+      <label for="tipoQuarto">Tipo</label>
+      <select id="tipoQuarto" required>
+        <option value="" disabled selected>Selecione o tipo</option>
+        <option value="Single">Single</option>
+        <option value="Double">Double</option>
+        <option value="Suite">Suíte</option>
+      </select>
+
+      <label for="statusQuarto">Status</label>
+      <select id="statusQuarto" required>
+        <option value="Disponível" selected>Disponível</option>
+        <option value="Ocupado">Ocupado</option>
+      </select>
+
+      <label for="precoQuarto">Preço (R$)</label>
+      <input type="number" id="precoQuarto" required min="10" step="0.01" placeholder="Ex: 150.00" />
+
+      <button type="submit"><i class="fas fa-plus-circle"></i> Adicionar Quarto</button>
+    </form>
+
+    <input type="search" id="buscarQuarto" placeholder="Buscar quarto..." style="width: 100%; padding: 8px; margin-bottom: 12px; border-radius: 6px; border: none; font-size: 1em;" />
+    <ul id="listaQuartos"></ul>
+  </section>
+
+  <hr style="margin: 40px 0; border: 1px solid #555;" />
+
+  <!-- Formulário Reserva -->
+  <section>
+    <h2><i class="fas fa-calendar-check"></i> Gerenciar Reservas</h2>
+    <form id="formReserva">
+      <label for="hospedeReserva">Hóspede</label>
+      <select id="hospedeReserva" required>
+        <option value="" disabled selected>Selecione o hóspede</option>
+      </select>
+
+      <label for="quartoReserva">Quarto</label>
+      <select id="quartoReserva" required>
+        <option value="" disabled selected>Selecione o quarto</option>
+      </select>
+
+      <label for="dataEntrada">Data de Entrada</label>
+      <input type="date" id="dataEntrada" required />
+
+      <label for="dataSaida">Data de Saída</label>
+      <input type="date" id="dataSaida" required />
+
+      <button type="submit"><i class="fas fa-plus-circle"></i> Criar Reserva</button>
+    </form>
+
+    <ul id="listaReservas"></ul>
+  </section>
+</div>
+
+<div id="notificacao"></div>
+
+<script>
+(() => {
+  // Abrir banco IndexedDB
+  const request = indexedDB.open('hotelDB', 1);
+  let db;
+
+  request.onupgradeneeded = e => {
+    db = e.target.result;
+    if(!db.objectStoreNames.contains('hospedes')) {
+      const storeH = db.createObjectStore('hospedes', { keyPath: 'id', autoIncrement: true });
+    }
+    if(!db.objectStoreNames.contains('quartos')) {
+      const storeQ = db.createObjectStore('quartos', { keyPath: 'id', autoIncrement: true });
+      storeQ.createIndex('numero', 'numero', { unique: true });
+    }
+    if(!db.objectStoreNames.contains('reservas')) {
+      const storeR = db.createObjectStore('reservas', { keyPath: 'id', autoIncrement: true });
+      storeR.createIndex('quartoId', 'quartoId', { unique: false });
+      storeR.createIndex('hospedeId', 'hospedeId', { unique: false });
+    }
+  };
+
+  request.onsuccess = e => {
+    db = e.target.result;
+    listarHospedes();
+    listarQuartos();
+    listarReservas();
+    carregarHospedesSelect();
+    carregarQuartosSelect();
+  };
+
+  request.onerror = e => {
+    alert('Erro ao abrir banco de dados: ' + e.target.errorCode);
+  };
+
+  // --- Funções Hóspedes ---
+  const formHospede = document.getElementById('formHospede');
+  formHospede.addEventListener('submit', e => {
+    e.preventDefault();
+    const nome = document.getElementById('nomeHospede').value.trim();
+    const telefone = document.getElementById('telefoneHospede').value.trim();
+    const email = document.getElementById('emailHospede').value.trim();
+    const doc = document.getElementById('docHospede').value.trim();
+
+    if(nome.length < 3) {
+      alert('Nome deve ter ao menos 3 caracteres.');
+      return;
+    }
+    const telRegex = /^\+?\d{8,15}$/;
+    if(!telRegex.test(telefone)) {
+      alert('Telefone inválido. Exemplo: +5511999998888');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if(!emailRegex.test(email)) {
+      alert('Email inválido.');
+      return;
+    }
+    if(doc.length < 5) {
+      alert('Documento inválido.');
+      return;
+    }
+
+    const tx = db.transaction('hospedes', 'readwrite');
+    const store = tx.objectStore('hospedes');
+    store.add({nome, telefone, email, doc});
+    tx.oncomplete = () => {
+      mostrarNotificacao('Hóspede cadastrado com sucesso!');
+      formHospede.reset();
+      listarHospedes();
+      carregarHospedesSelect();
+    };
+  });
+
+  function listarHospedes() {
+    const filtro = document.getElementById('buscarHospede').value?.toLowerCase() || '';
+    const lista = document.getElementById('listaHospedes');
+    lista.innerHTML = '';
+    const tx = db.transaction('hospedes', 'readonly');
+    const store = tx.objectStore('hospedes');
+    store.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor) {
+        const hosp = cursor.value;
+        if(hosp.nome.toLowerCase().includes(filtro)) {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span><i class="fas fa-user"></i> ${hosp.nome} — <small>${hosp.email}</small></span>
+            <button class="remove-btn" title="Remover hóspede" onclick="removerHospede(${hosp.id})">
+              <i class="fas fa-trash"></i> Excluir
+            </button>
+          `;
+          lista.appendChild(li);
+        }
+        cursor.continue();
+      }
+    };
+  }
+
+  window.removerHospede = function(id) {
+    if(confirm('Confirma remover este hóspede? As reservas ligadas a ele também serão removidas.')) {
+      const tx = db.transaction(['reservas', 'hospedes'], 'readwrite');
+      const reservasStore = tx.objectStore('reservas');
+      const hospedesStore = tx.objectStore('hospedes');
+
+      const index = reservasStore.index('hospedeId');
+      const request = index.openCursor(IDBKeyRange.only(id));
+      request.onsuccess = e => {
+        const cursor = e.target.result;
+        if(cursor) {
+          reservasStore.delete(cursor.primaryKey);
+          cursor.continue();
+        }
+      };
+
+      hospedesStore.delete(id);
+      tx.oncomplete = () => {
+        mostrarNotificacao('Hóspede e reservas relacionadas removidos.');
+        listarHospedes();
+        listarReservas();
+        carregarHospedesSelect();
+      };
+    }
+  };
+
+  document.getElementById('buscarHospede').addEventListener('input', listarHospedes);
+
+  function carregarHospedesSelect() {
+    const select = document.getElementById('hospedeReserva');
+    select.innerHTML = '<option value="" disabled selected>Selecione o hóspede</option>';
+    const tx = db.transaction('hospedes', 'readonly');
+    const store = tx.objectStore('hospedes');
+    store.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor) {
+        const h = cursor.value;
+        select.innerHTML += `<option value="${h.id}">${h.nome}</option>`;
+        cursor.continue();
+      }
+    };
+  }
+
+  // --- Funções Quartos ---
+  const formQuarto = document.getElementById('formQuarto');
+  formQuarto.addEventListener('submit', e => {
+    e.preventDefault();
+    const numero = parseInt(document.getElementById('numeroQuarto').value);
+    const tipo = document.getElementById('tipoQuarto').value;
+    const status = document.getElementById('statusQuarto').value;
+    const preco = parseFloat(document.getElementById('precoQuarto').value);
+
+    if(numero < 1) {
+      alert('Número do quarto inválido.');
+      return;
+    }
+    if(!tipo) {
+      alert('Selecione o tipo do quarto.');
+      return;
+    }
+    if(preco < 10) {
+      alert('Preço mínimo R$10,00.');
+      return;
+    }
+
+    const tx = db.transaction('quartos', 'readwrite');
+    const store = tx.objectStore('quartos');
+
+    const index = store.index('numero');
+    const check = index.get(numero);
+    check.onsuccess = () => {
+      if(check.result) {
+        alert('Já existe um quarto cadastrado com esse número.');
+        return;
+      }
+      store.add({numero, tipo, status, preco});
+      tx.oncomplete = () => {
+        mostrarNotificacao('Quarto cadastrado com sucesso!');
+        formQuarto.reset();
+        listarQuartos();
+        carregarQuartosSelect();
+      };
+    };
+  });
+
+  function listarQuartos() {
+    const filtro = document.getElementById('buscarQuarto').value?.toLowerCase() || '';
+    const lista = document.getElementById('listaQuartos');
+    lista.innerHTML = '';
+    const tx = db.transaction('quartos', 'readonly');
+    const store = tx.objectStore('quartos');
+    store.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor) {
+        const q = cursor.value;
+        const texto = `${q.numero} - ${q.tipo}`.toLowerCase();
+        if(texto.includes(filtro)) {
+          const li = document.createElement('li');
+          li.innerHTML = `
+            <span><i class="fas fa-door-closed"></i> Quarto ${q.numero} — <strong>${q.tipo}</strong> — <span class="status ${q.status}">${q.status}</span> — R$ ${q.preco.toFixed(2)}</span>
+            <button class="remove-btn" title="Remover quarto" onclick="removerQuarto(${q.id})">
+              <i class="fas fa-trash"></i> Excluir
+            </button>
+          `;
+          lista.appendChild(li);
+        }
+        cursor.continue();
+      }
+    };
+  }
+
+  window.removerQuarto = function(id) {
+    if(confirm('Confirma remover este quarto? As reservas ligadas a ele também serão removidas.')) {
+      const tx = db.transaction(['reservas', 'quartos'], 'readwrite');
+      const reservasStore = tx.objectStore('reservas');
+      const quartosStore = tx.objectStore('quartos');
+
+      const index = reservasStore.index('quartoId');
+      const request = index.openCursor(IDBKeyRange.only(id));
+      request.onsuccess = e => {
+        const cursor = e.target.result;
+        if(cursor) {
+          reservasStore.delete(cursor.primaryKey);
+          cursor.continue();
+        }
+      };
+
+      quartosStore.delete(id);
+      tx.oncomplete = () => {
+        mostrarNotificacao('Quarto e reservas relacionadas removidos.');
+        listarQuartos();
+        listarReservas();
+        carregarQuartosSelect();
+      };
+    }
+  };
+
+  document.getElementById('buscarQuarto').addEventListener('input', listarQuartos);
+
+  function carregarQuartosSelect() {
+    const select = document.getElementById('quartoReserva');
+    select.innerHTML = '<option value="" disabled selected>Selecione o quarto</option>';
+    const tx = db.transaction('quartos', 'readonly');
+    const store = tx.objectStore('quartos');
+    store.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor) {
+        const q = cursor.value;
+        if(q.status === 'Disponível') {
+          select.innerHTML += `<option value="${q.id}">Quarto ${q.numero} — ${q.tipo}</option>`;
+        }
+        cursor.continue();
+      }
+    };
+  }
+
+  // --- Funções Reservas ---
+  const formReserva = document.getElementById('formReserva');
+  formReserva.addEventListener('submit', e => {
+    e.preventDefault();
+    const hospedeId = Number(document.getElementById('hospedeReserva').value);
+    const quartoId = Number(document.getElementById('quartoReserva').value);
+    const entrada = document.getElementById('dataEntrada').value;
+    const saida = document.getElementById('dataSaida').value;
+
+    if(new Date(entrada) >= new Date(saida)) {
+      alert('Data de saída deve ser maior que data de entrada.');
+      return;
+    }
+
+    // Verificar conflito de reserva para o mesmo quarto e datas
+    const tx = db.transaction(['reservas'], 'readonly');
+    const store = tx.objectStore('reservas');
+
+    store.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      let conflito = false;
+      if(cursor) {
+        const r = cursor.value;
+        if(r.quartoId === quartoId) {
+          const entradaExistente = new Date(r.entrada);
+          const saidaExistente = new Date(r.saida);
+          const entradaNova = new Date(entrada);
+          const saidaNova = new Date(saida);
+
+          if(!(saidaNova <= entradaExistente || entradaNova >= saidaExistente)) {
+            conflito = true;
+          }
+        }
+        cursor.continue();
+      } else {
+        if(conflito) {
+          alert('Este quarto já está reservado para o período informado.');
+          return;
+        }
+        // Adicionar reserva
+        const txAdd = db.transaction('reservas', 'readwrite');
+        const reservasStore = txAdd.objectStore('reservas');
+        reservasStore.add({hospedeId, quartoId, entrada, saida});
+        txAdd.oncomplete = () => {
+          mostrarNotificacao('Reserva cadastrada com sucesso!');
+          formReserva.reset();
+          listarReservas();
+          carregarQuartosSelect();
+        };
+      }
+    };
+  });
+
+  function listarReservas() {
+    const lista = document.getElementById('listaReservas');
+    lista.innerHTML = '';
+    const tx = db.transaction(['reservas', 'hospedes', 'quartos'], 'readonly');
+    const reservasStore = tx.objectStore('reservas');
+    const hospedesStore = tx.objectStore('hospedes');
+    const quartosStore = tx.objectStore('quartos');
+
+    reservasStore.openCursor().onsuccess = e => {
+      const cursor = e.target.result;
+      if(cursor) {
+        const r = cursor.value;
+
+        let nomeHospede = 'Desconhecido';
+        let numeroQuarto = 'Desconhecido';
+        let tipoQuarto = '';
+        let precoQuarto = 0;
+
+        const hospedeReq = hospedesStore.get(r.hospedeId);
+        hospedeReq.onsuccess = () => {
+          if(hospedeReq.result) {
+            nomeHospede = hospedeReq.result.nome;
+          }
+          const quartoReq = quartosStore.get(r.quartoId);
+          quartoReq.onsuccess = () => {
+            if(quartoReq.result) {
+              numeroQuarto = quartoReq.result.numero;
+              tipoQuarto = quartoReq.result.tipo;
+              precoQuarto = quartoReq.result.preco;
+            }
+            const li = document.createElement('li');
+            li.innerHTML = `
+              <span><i class="fas fa-calendar-alt"></i> Reserva: ${nomeHospede} — Quarto ${numeroQuarto} (${tipoQuarto}) — Entrada: ${r.entrada} — Saída: ${r.saida} — R$ ${precoQuarto.toFixed(2)}</span>
+              <button class="remove-btn" title="Remover reserva" onclick="removerReserva(${r.id})">
+                <i class="fas fa-trash"></i> Excluir
+              </button>
+            `;
+            lista.appendChild(li);
+            cursor.continue();
+          };
+        };
+      }
+    };
+  }
+
+  window.removerReserva = function(id) {
+    if(confirm('Confirma remover esta reserva?')) {
+      const tx = db.transaction('reservas', 'readwrite');
+      const store = tx.objectStore('reservas');
+      store.delete(id);
+      tx.oncomplete = () => {
+        mostrarNotificacao('Reserva removida com sucesso!');
+        listarReservas();
+        carregarQuartosSelect();
+      };
+    }
+  };
+
+  // --- Notificação ---
+  function mostrarNotificacao(msg) {
+    const notif = document.getElementById('notificacao');
+    notif.textContent = msg;
+    notif.style.display = 'block';
+    setTimeout(() => notif.style.display = 'none', 3000);
+  }
+})();
+</script>
+</body>
+</html>
